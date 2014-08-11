@@ -9,13 +9,20 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level; 
+import org.apache.log4j.LogManager; 
+
+
 public final class TemplateApp {
+
+  public static org.apache.log4j.Logger log = Logger.getLogger(TemplateApp.class);
 
   public static class Map extends Mapper<Text, Text, Text, Text> {
     @Override
     protected void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-      System.out.println("key: "+key.toString().trim());
-      System.out.println("val: "+value.toString().trim());
+      log.debug("key: "+key.toString().trim());
+      log.debug("val: "+value.toString().trim());
       // just translate key/value
       context.write(key,value);
     }
@@ -24,7 +31,7 @@ public final class TemplateApp {
   public static class Reduce extends Reducer<Text, Text, Text, Text> {  
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
        String result=new String();
-       System.out.println("reduce:"+key.toString());
+       log.debug("reduce:"+key.toString());
        // collect by key
        for (Text value : values) {
         result+=value.toString();
@@ -39,6 +46,16 @@ public final class TemplateApp {
 
   public static void runJob(String input, String output) throws Exception {  
 
+    log.setLevel(Level.DEBUG);
+/*
+    log.trace("Trace Message!");
+    log.debug("Debug Message!");
+    log.info("Info Message!");
+    log.warn("Warn Message!");
+    log.error("Error Message!");
+    log.fatal("Fatal Message!");
+
+*/
     Configuration conf = new Configuration();
     conf.set("mapreduce.input.keyvaluelinerecordreader.key.value.separator", ",");
     Job job = new Job(conf);
